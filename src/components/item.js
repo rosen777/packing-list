@@ -1,8 +1,12 @@
 import clsx from 'clsx';
-import { useState } from 'react';
+import { memo, useContext, useState } from 'react';
+import { ActionsContext } from '../context';
+import { remove, update } from '../lib/reducer';
+import { useActions } from '../hooks';
 
-const Item = ({ item, update, remove }) => {
+const Item = ({ item }) => {
   const [editing, setEditing] = useState(false);
+  const dispatch = useActions();
 
   return (
     <li className="flex items-center gap-2">
@@ -11,7 +15,7 @@ const Item = ({ item, update, remove }) => {
         className="focus:bg-red-500"
         checked={item.packed}
         id={`toggle-${item.id}`}
-        onChange={() => update(item.id, { packed: !item.packed })}
+        onChange={() => dispatch(update({ id: item.id, packed: !item.packed }))}
       />
       <label
         htmlFor={`toggle-${item.id}`}
@@ -23,7 +27,9 @@ const Item = ({ item, update, remove }) => {
         value={item.name}
         id={`edit-${item.id}`}
         className={clsx('py-0 text-sm', { hidden: !editing })}
-        onChange={(event) => update(item.id, { name: event.target.value })}
+        onChange={(event) =>
+          dispatch(update(item.id, { name: event.target.value }))
+        }
       />
       <div className="flex gap-2">
         <button
@@ -36,7 +42,7 @@ const Item = ({ item, update, remove }) => {
         <button
           className="px-2 py-0 text-xs"
           aria-label={`Remove "${item.name}"`}
-          onClick={() => remove(item.id)}
+          onClick={() => dispatch(remove(item.id))}
         >
           🗑 Remove
         </button>
@@ -45,4 +51,4 @@ const Item = ({ item, update, remove }) => {
   );
 };
 
-export default Item;
+export default memo(Item);
